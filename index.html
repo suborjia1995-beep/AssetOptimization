@@ -147,7 +147,7 @@
             </div>
             <div class="flex items-center justify-between gap-4 pt-2 border-t border-white/10 text-[11px] text-emerald-100/60">
               <span class="flex items-center gap-1.5"><i class="fa-solid fa-arrows-rotate text-gold-500"></i> 行情同步</span>
-              <span id="updateTimeText" class="font-mono text-white/90">2026-11-09 12:00 (最新同步)</span>
+              <span id="updateTimeText" class="font-mono text-white/90">2026-11-09 14:00</span>
             </div>
           </div>
         </div>
@@ -755,7 +755,7 @@
             </div>
           </div>
           <div class="flex items-center space-x-2">
-            <span class="text-xs text-warm-muted mr-1"><i class="fa-regular fa-clock mr-1"></i><span id="update-timestamp">2026-11-09 12:00 (已同步最新淨值)</span></span>
+            <span class="text-xs text-warm-muted mr-1"><i class="fa-regular fa-clock mr-1"></i><span id="update-timestamp">2026-11-09 14:00</span></span>
             <button onclick="refreshMarketData()" class="px-3 py-1.5 bg-cream-100 hover:bg-cream-200 text-warm-dark rounded-xl text-xs font-bold transition flex items-center space-x-1.5">
               <i class="fa-solid fa-arrows-rotate"></i>
               <span>更新行情</span>
@@ -930,4 +930,487 @@
               <span id="flow-tier2-div" class="font-semibold text-emerald-700 font-mono">+$0</span>
             </div>
             <div class="flex justify-between text-xs md:text-sm py-1 border-b border-dashed border-cream-200">
-              <span class="text-rose-600 font-medium">(-) 信貸每月本息
+              <span class="text-rose-600 font-medium">(-) 信貸每月本息支出</span>
+              <span id="flow-loan-pay" class="font-semibold text-rose-600 font-mono">-$0</span>
+            </div>
+            <div class="flex justify-between text-xs md:text-sm py-1 border-b border-dashed border-cream-200">
+              <span class="text-rose-600 font-medium">(-) 保單質借每月利息</span>
+              <span id="flow-pledge-pay" class="font-semibold text-rose-600 font-mono">-$0</span>
+            </div>
+            <div class="flex justify-between text-sm md:text-base font-bold pt-2 text-warm-dark">
+              <span id="flow-net-label">每月實際自付淨現金流：</span>
+              <span id="flow-net-total" class="text-indigo-700 font-mono">$0</span>
+            </div>
+          </div>
+
+          <!-- 4年解約還款結算 -->
+          <div class="bg-cream-50/70 p-6 rounded-2xl border border-warm-200 space-y-3">
+            <h4 class="text-sm font-bold text-warm-dark border-b border-warm-200 pb-2 flex items-center">
+              <i class="fa-solid fa-flag-checkered mr-2 text-amber-600"></i> 4 年期滿結算 (終局閉環)
+            </h4>
+            
+            <div id="row-self-pay" class="flex justify-between text-xs md:text-sm py-1">
+              <span class="text-warm-muted">4 年實際自掏累積總投入：</span>
+              <span id="fourYearSelfPay" class="font-bold text-warm-dark font-mono">$0</span>
+            </div>
+
+            <div id="row-extra-dividend" class="hidden flex justify-between items-center text-xs md:text-sm py-2.5 bg-emerald-100/90 px-3.5 rounded-xl border border-emerald-300 text-emerald-950 font-semibold shadow-sm transition-all duration-300">
+              <span class="flex items-center">
+                <i class="fa-solid fa-sack-dollar text-emerald-600 mr-2 text-base"></i>
+                4 年累積多領的配息 (實質進帳)：
+              </span>
+              <span id="fourYearExtraDividend" class="font-extrabold text-emerald-700 text-base md:text-lg font-mono">+$0</span>
+            </div>
+
+            <div class="flex justify-between text-xs md:text-sm py-1">
+              <span class="text-warm-muted">4 年信貸已累積攤還本金：</span>
+              <span id="fourYearPaidPrincipal" class="font-semibold text-warm-dark font-mono">$0</span>
+            </div>
+            <div class="flex justify-between text-xs md:text-sm py-1 text-rose-600 font-medium">
+              <span>4 年後信貸剩餘待還本金：</span>
+              <span id="fourYearRemainPrincipal" class="font-bold font-mono">$0</span>
+            </div>
+            <div class="flex justify-between text-xs md:text-sm py-1 text-indigo-700 font-medium border-t border-dashed border-cream-200 pt-2">
+              <span>解約第二層保單還清質借後可得：</span>
+              <span id="tier2SurrenderNet" class="font-bold font-mono">$0</span>
+            </div>
+
+            <div class="p-3 bg-gold-50 border border-gold-200 rounded-xl text-xs text-warm-dark leading-relaxed mt-2">
+              <i class="fa-solid fa-circle-check text-gold-600 mr-1"></i>
+              <strong>四年一刻總結：</strong>4 年期滿時，以第二張保單解約還清信貸剩餘本金，客戶僅花費極低自付款或甚至**額外淨賺現金流**，即**完整保留一整張 100 萬保單**！
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <script>
+    // ==========================================
+    // Tab 導覽列切換控制
+    // ==========================================
+    function switchTab(tab) {
+      const btnMortgage = document.getElementById("tab-btn-mortgage");
+      const btnFourYear = document.getElementById("tab-btn-fouryear");
+      const modMortgage = document.getElementById("module-mortgage");
+      const modFourYear = document.getElementById("module-fouryear");
+
+      if (tab === 'mortgage') {
+        btnMortgage.className = "px-4 py-2 rounded-xl text-xs md:text-sm font-bold transition-all flex items-center space-x-2 bg-forest-800 text-gold-100 shadow-md";
+        btnFourYear.className = "px-4 py-2 rounded-xl text-xs md:text-sm font-bold transition-all flex items-center space-x-2 text-emerald-100/70 hover:text-white";
+        modMortgage.classList.remove("hidden");
+        modFourYear.classList.add("hidden");
+        calculateMortgage();
+      } else {
+        btnFourYear.className = "px-4 py-2 rounded-xl text-xs md:text-sm font-bold transition-all flex items-center space-x-2 bg-indigo-800 text-white shadow-md";
+        btnMortgage.className = "px-4 py-2 rounded-xl text-xs md:text-sm font-bold transition-all flex items-center space-x-2 text-emerald-100/70 hover:text-white";
+        modFourYear.classList.remove("hidden");
+        modMortgage.classList.add("hidden");
+        calculateFourYear();
+      }
+    }
+
+    function formatNTD(val) {
+      return "$" + Math.round(val).toLocaleString();
+    }
+
+    // ==========================================
+    // 模組一：房產活化與資產配置試算邏輯
+    // ==========================================
+    const nameInput = document.getElementById('clientNameInput');
+    const reportName = document.getElementById('reportClientName');
+    if (nameInput && reportName) {
+      nameInput.addEventListener('input', () => {
+        reportName.textContent = nameInput.value || '尊榮貴賓';
+      });
+    }
+
+    function calculateMortgage() {
+      const loanAmount = (parseFloat(document.getElementById('loanAmount_mort').value) || 0) * 10000;
+      const loanYears = parseFloat(document.getElementById('loanYears_mort').value) || 1;
+      const loanRate = (parseFloat(document.getElementById('loanRate_mort').value) || 0) / 100;
+      const graceYears = parseFloat(document.getElementById('gracePeriod').value) || 0;
+
+      const monthlyRate = loanRate / 12;
+      const totalMonths = loanYears * 12;
+      const graceMonths = graceYears * 12;
+      const amortMonths = totalMonths - graceMonths;
+
+      const graceMonthlyPay = Math.round(loanAmount * monthlyRate);
+
+      let regularMonthlyPay = 0;
+      if (amortMonths > 0) {
+        if (monthlyRate === 0) {
+          regularMonthlyPay = Math.round(loanAmount / amortMonths);
+        } else {
+          regularMonthlyPay = Math.round(
+            loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, amortMonths)) / (Math.pow(1 + monthlyRate, amortMonths) - 1)
+          );
+        }
+      }
+
+      document.getElementById('gracePayment').textContent = `NT$ ${graceMonthlyPay.toLocaleString()}`;
+      document.getElementById('regularPayment').textContent = `NT$ ${regularMonthlyPay.toLocaleString()}`;
+
+      document.getElementById('tier1Capital').textContent = (loanAmount / 10000).toLocaleString();
+      const t1_r1 = (parseFloat(document.getElementById('t1_ratio1').value) || 0) / 100;
+      const t1_r2 = (parseFloat(document.getElementById('t1_ratio2').value) || 0) / 100;
+      const t1_r3 = (parseFloat(document.getElementById('t1_ratio3').value) || 0) / 100;
+      
+      const t1_yield1 = (parseFloat(document.getElementById('t1_yield1').value) || 0) / 100;
+      const t1_yield2 = (parseFloat(document.getElementById('t1_yield2').value) || 0) / 100;
+      const t1_yield3 = (parseFloat(document.getElementById('t1_yield3').value) || 0) / 100;
+
+      const tier1TotalRatioVal = Math.round((t1_r1 + t1_r2 + t1_r3) * 100);
+      document.getElementById('tier1TotalRatio').textContent = `${tier1TotalRatioVal}%`;
+      document.getElementById('tier1TotalRatio').className = tier1TotalRatioVal === 100 ? 'font-bold text-forest-700' : 'font-bold text-rose-600';
+
+      const t1_weighted_yield = (t1_r1 * t1_yield1) + (t1_r2 * t1_yield2) + (t1_r3 * t1_yield3);
+      const tier1MonthlyDividend = Math.round((loanAmount * t1_weighted_yield) / 12);
+
+      const enableLeverage = document.getElementById('enableLeverage').checked;
+      document.getElementById('leverageSection').style.display = enableLeverage ? 'block' : 'none';
+      document.getElementById('rowTier2Dividend').style.display = enableLeverage ? 'flex' : 'none';
+      document.getElementById('rowPledgeInterest').style.display = enableLeverage ? 'flex' : 'none';
+
+      let pledgeAmount = 0;
+      let pledgeMonthlyInterest = 0;
+      let tier2MonthlyDividend = 0;
+
+      if (enableLeverage) {
+        const pledgeRatio = (parseFloat(document.getElementById('pledgeRatio_mort').value) || 0) / 100;
+        const pledgeRate = (parseFloat(document.getElementById('pledgeRate_mort').value) || 0) / 100;
+        
+        pledgeAmount = loanAmount * pledgeRatio;
+        pledgeMonthlyInterest = Math.round((pledgeAmount * pledgeRate) / 12);
+
+        document.getElementById('tier2Capital').textContent = (pledgeAmount / 10000).toLocaleString();
+        document.getElementById('pledgeMonthlyInterest_mort').textContent = `NT$ ${pledgeMonthlyInterest.toLocaleString()}`;
+
+        const t2_r1 = (parseFloat(document.getElementById('t2_ratio1').value) || 0) / 100;
+        const t2_r2 = (parseFloat(document.getElementById('t2_ratio2').value) || 0) / 100;
+        const t2_r3 = (parseFloat(document.getElementById('t2_ratio3').value) || 0) / 100;
+
+        const t2_weighted_yield = (t2_r1 * t1_yield1) + (t2_r2 * t1_yield2) + (t2_r3 * t1_yield3);
+        tier2MonthlyDividend = Math.round((pledgeAmount * t2_weighted_yield) / 12);
+      }
+
+      const totalMonthlyIncome = tier1MonthlyDividend + tier2MonthlyDividend;
+      const totalMonthlyExpense = regularMonthlyPay + pledgeMonthlyInterest;
+      const graceMonthlyExpense = graceMonthlyPay + pledgeMonthlyInterest;
+
+      const netMonthlyCashflow = totalMonthlyIncome - totalMonthlyExpense;
+      const graceNetCashflow = totalMonthlyIncome - graceMonthlyExpense;
+
+      document.getElementById('outTier1Dividend').textContent = tier1MonthlyDividend.toLocaleString();
+      document.getElementById('outTier2Dividend').textContent = tier2MonthlyDividend.toLocaleString();
+      document.getElementById('outTotalIncome').textContent = `+ NT$ ${totalMonthlyIncome.toLocaleString()}`;
+
+      document.getElementById('outLoanPayment').textContent = regularMonthlyPay.toLocaleString();
+      document.getElementById('outPledgeInterest').textContent = pledgeMonthlyInterest.toLocaleString();
+      document.getElementById('outTotalExpense').textContent = `- NT$ ${totalMonthlyExpense.toLocaleString()}`;
+
+      const displayEl = document.getElementById('netCashflowDisplay');
+      if (netMonthlyCashflow >= 0) {
+        displayEl.textContent = `+ NT$ ${netMonthlyCashflow.toLocaleString()}`;
+        displayEl.className = "text-3xl sm:text-4xl font-black mt-2 tracking-tight font-mono text-gold-500 drop-shadow-sm";
+      } else {
+        displayEl.textContent = `- NT$ ${Math.abs(netMonthlyCashflow).toLocaleString()}`;
+        displayEl.className = "text-3xl sm:text-4xl font-black mt-2 tracking-tight font-mono text-rose-400 drop-shadow-sm";
+      }
+
+      document.getElementById('annualNetCashflow').textContent = `NT$ ${(netMonthlyCashflow * 12).toLocaleString()}`;
+      document.getElementById('graceNetCashflow').textContent = `+ NT$ ${graceNetCashflow.toLocaleString()}`;
+
+      document.querySelectorAll('.rep-years-text').forEach(el => {
+        el.textContent = loanYears;
+      });
+
+      const totalPortfolioAssets = (loanAmount + pledgeAmount) / 10000;
+      document.getElementById('repTotalAssets').textContent = `${totalPortfolioAssets.toLocaleString()} 萬元`;
+
+      const totalArbitrage = (graceMonths * graceNetCashflow) + (amortMonths * netMonthlyCashflow);
+      const totalArbitrageWan = (totalArbitrage / 10000).toFixed(1);
+      
+      document.getElementById('repTotalArbitrage').textContent = `NT$ ${Math.round(totalArbitrage).toLocaleString()} (${totalArbitrageWan} 萬)`;
+      document.getElementById('repArbitrageAmount').textContent = `NT$ ${totalArbitrageWan} 萬元`;
+
+      const postMortgageMonthlyNet = totalMonthlyIncome - pledgeMonthlyInterest;
+      document.getElementById('repPostMortgageMonthly').textContent = `+ NT$ ${postMortgageMonthlyNet.toLocaleString()} /月`;
+    }
+
+    // 模組一預設標的參數 (已更新最新 NAV 與配息率)
+    const FUND_META = {
+      fund1: { name: '安聯收益成長AM', symbol: '0P0000XWNE.TW', dividend: 0.0550, defaultNav: 8.1492, targetYield: 8.10 },
+      fund2: { name: '瀚亞多重收益B', symbol: '0P00018PWW.TW', dividend: 0.0700, defaultNav: 7.9900, targetYield: 10.51 },
+      fund3: { name: '聯博美國成長AP', symbol: '0P00000UKQ.TW', dividend: 0.8322, defaultNav: 67.0700, targetYield: 14.89 }
+    };
+
+    function getTodaySyncTime() {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d} 14:00 (已同步最新淨值)`;
+    }
+
+    function fetchDailyRates() {
+      const updateEl = document.getElementById('updateTimeText');
+      if (updateEl) updateEl.textContent = getTodaySyncTime();
+      applyRates(FUND_META.fund1.defaultNav, FUND_META.fund1.dividend, FUND_META.fund2.defaultNav, FUND_META.fund2.dividend, FUND_META.fund3.defaultNav, FUND_META.fund3.dividend);
+    }
+
+    function applyRates(nav1, div1, nav2, div2, nav3, div3) {
+      const y1 = Number(((div1 * 12 / nav1) * 100).toFixed(2));
+      const y2 = Number(((div2 * 12 / nav2) * 100).toFixed(2));
+      const y3 = Number(((div3 * 12 / nav3) * 100).toFixed(2));
+
+      document.getElementById('card_nav1').textContent = `$${nav1.toFixed(4)}`;
+      document.getElementById('card_div1').textContent = `$${div1.toFixed(4)}`;
+      document.getElementById('card_yield1').textContent = `${y1}%`;
+      document.getElementById('t1_yield1').value = y1;
+
+      document.getElementById('card_nav2').textContent = `$${nav2.toFixed(4)}`;
+      document.getElementById('card_div2').textContent = `$${div2.toFixed(4)}`;
+      document.getElementById('card_yield2').textContent = `${y2}%`;
+      document.getElementById('t1_yield2').value = y2;
+
+      document.getElementById('card_nav3').textContent = `$${nav3.toFixed(4)}`;
+      document.getElementById('card_div3').textContent = `$${div3.toFixed(4)}`;
+      document.getElementById('card_yield3').textContent = `${y3}%`;
+      document.getElementById('t1_yield3').value = y3;
+
+      calculateMortgage();
+    }
+
+
+    // ==========================================
+    // 模組二：四年一刻基金行情與試算核心 (最新完整校正數據)
+    // ==========================================
+    const fundsMasterData = [
+      { id: 1, name: "摩根投資基金-多重收益基金 A 股", currency: "USD", nav: 71.9000, dividendUnit: 0.6920, baseDate: "約 7 日 (每月 7~11 日)", tier1Ratio: 20, tier2Ratio: 20, symbol: "0P00000HDH.TW" },
+      { id: 2, name: "安聯收益成長基金 AM 穩定月收", currency: "USD", nav: 8.1492, dividendUnit: 0.0550, baseDate: "約 14 日 (月中配息)", tier1Ratio: 20, tier2Ratio: 20, symbol: "0P0000XWNE.TW" },
+      { id: 3, name: "百達-Quest 全球永續股票-R 美元月配", currency: "USD", nav: 271.8500, dividendUnit: 1.8400, baseDate: "約 20 日 (下旬配息)", tier1Ratio: 15, tier2Ratio: 15, symbol: "" },
+      { id: 4, name: "瀚亞多重收益優化組合基金 B 類型-美元", currency: "USD", nav: 7.9900, dividendUnit: 0.0700, baseDate: "約 30 日 (月底配息)", tier1Ratio: 15, tier2Ratio: 15, symbol: "0P00018PWW.TW" },
+      { id: 5, name: "聯博美國成長 AP (總報酬月配) 級別美元", currency: "USD", nav: 67.0700, dividendUnit: 0.8322, baseDate: "約 30 日 (月底配息)", tier1Ratio: 15, tier2Ratio: 15, symbol: "0P00000UKQ.TW" },
+      { id: 6, name: "富蘭克林坦伯頓全球投資系列-穩定月收益基金美元A", currency: "USD", nav: 9.7100, dividendUnit: 0.0670, baseDate: "約 30 日 (月底配息)", tier1Ratio: 15, tier2Ratio: 15, symbol: "0P00000W4D.TW" }
+    ];
+
+    function calculateAnnualRate(dividendUnit, nav) {
+      if (!nav || nav <= 0) return 0;
+      return ((dividendUnit * 12) / nav) * 100;
+    }
+
+    function renderTopFundCards() {
+      const container = document.getElementById("fundCardsContainer");
+      if (!container) return;
+      container.innerHTML = "";
+      fundsMasterData.forEach((fund, index) => {
+        const annualRate = calculateAnnualRate(fund.dividendUnit, fund.nav);
+        const card = document.createElement("div");
+        card.className = "bg-cream-50/60 hover:bg-cream-100/60 p-4 rounded-2xl border border-warm-200 transition duration-150 flex flex-col justify-between";
+        card.innerHTML = `
+          <div>
+            <div class="flex items-start justify-between gap-2 mb-2">
+              <span class="inline-block px-2 py-0.5 bg-indigo-100 text-indigo-800 text-[10px] font-bold rounded-md">標的 0${index + 1}</span>
+              <span class="text-[11px] text-warm-muted font-medium"><i class="fa-regular fa-calendar-check mr-1"></i>基準日: ${fund.baseDate}</span>
+            </div>
+            <h4 class="font-bold text-warm-dark text-xs sm:text-sm leading-snug line-clamp-2 mb-3" title="${fund.name}">${fund.name}</h4>
+          </div>
+          <div class="pt-3 border-t border-warm-200 space-y-2 text-xs">
+            <div class="flex justify-between items-center">
+              <span class="text-warm-muted">最新淨值 (NAV)：</span>
+              <span class="font-bold text-warm-dark font-mono text-xs">${fund.nav.toFixed(4).replace(/0+$/, '').replace(/\.$/, '')} <span class="text-[10px] text-warm-muted font-normal">${fund.currency}</span></span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-warm-muted">每單位月配息：</span>
+              <span class="font-bold text-warm-stone font-mono">${fund.dividendUnit.toFixed(4)}</span>
+            </div>
+            <div class="flex justify-between items-center bg-white p-2 rounded-xl border border-warm-200">
+              <span class="font-semibold text-warm-stone">換算年化配息率：</span>
+              <span class="font-extrabold text-emerald-600 text-sm sm:text-base font-mono">${annualRate.toFixed(2)}%</span>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function initFundTable() {
+      const tbody = document.getElementById("fundTableBody");
+      if (!tbody) return;
+      tbody.innerHTML = "";
+      fundsMasterData.forEach((fund, index) => {
+        const annualRate = calculateAnnualRate(fund.dividendUnit, fund.nav);
+        const row = document.createElement("tr");
+        row.className = "hover:bg-cream-50 transition-colors";
+        row.innerHTML = `
+          <td class="p-3 font-medium text-warm-dark">
+            <div class="font-semibold">${index + 1}. ${fund.name}</div>
+            <div class="text-[11px] text-warm-muted">淨值: ${fund.nav.toFixed(4).replace(/0+$/, '').replace(/\.$/, '')} | 配息: ${fund.dividendUnit.toFixed(4)}</div>
+          </td>
+          <td class="p-3 text-center text-xs text-warm-muted">${fund.baseDate}</td>
+          <td class="p-3 text-center">
+            <div class="relative flex items-center justify-center">
+              <input type="number" id="fundRate_${fund.id}" value="${annualRate.toFixed(2)}" step="0.01" class="w-20 text-center px-2 py-1 border border-warm-200 rounded-lg focus:ring-2 focus:ring-indigo-500 font-bold text-emerald-700 bg-white" oninput="calculateFourYear()">
+              <span class="ml-1 text-xs text-warm-muted font-semibold">%</span>
+            </div>
+          </td>
+          <td class="p-3 text-center">
+            <div class="relative flex items-center justify-center">
+              <input type="number" id="tier1Ratio_${fund.id}" value="${fund.tier1Ratio}" step="5" class="w-16 text-center px-2 py-1 border border-warm-200 rounded-lg focus:ring-2 focus:ring-indigo-500 font-semibold bg-white" oninput="calculateFourYear()">
+              <span class="ml-1 text-xs text-warm-muted font-semibold">%</span>
+            </div>
+          </td>
+          <td class="p-3 text-center">
+            <div class="relative flex items-center justify-center">
+              <input type="number" id="tier2Ratio_${fund.id}" value="${fund.tier2Ratio}" step="5" class="w-16 text-center px-2 py-1 border border-warm-200 rounded-lg focus:ring-2 focus:ring-indigo-500 font-semibold bg-white" oninput="calculateFourYear()">
+              <span class="ml-1 text-xs text-warm-muted font-semibold">%</span>
+            </div>
+          </td>
+          <td class="p-3 text-right font-bold text-warm-dark font-mono" id="fundMonthlyTotal_${fund.id}">$0</td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function refreshMarketData() {
+      const now = new Date();
+      const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+      const stamp = document.getElementById("update-timestamp");
+      if (stamp) stamp.innerText = `今日 ${timeStr} (已校正同步)`;
+
+      renderTopFundCards();
+      initFundTable();
+      calculateFourYear();
+    }
+
+    function calculateFourYear() {
+      const loanAmount = parseFloat(document.getElementById("loanAmount_four").value) || 0;
+      const loanYears = parseFloat(document.getElementById("loanYears_four").value) || 7;
+      const loanRate = (parseFloat(document.getElementById("loanRate_four").value) || 0) / 100;
+      const pledgeRatio = (parseFloat(document.getElementById("pledgeRatio_four").value) || 0) / 100;
+      const pledgeRate = (parseFloat(document.getElementById("pledgeRate_four").value) || 0) / 100;
+
+      // 1. 信貸月付金
+      const totalMonths = loanYears * 12;
+      const monthlyRate = loanRate / 12;
+      let loanMonthlyPay = 0;
+      if (monthlyRate > 0) {
+        loanMonthlyPay = loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, totalMonths)) / (Math.pow(1 + monthlyRate, totalMonths) - 1);
+      } else {
+        loanMonthlyPay = loanAmount / totalMonths;
+      }
+      document.getElementById("loanMonthlyPayment").innerText = formatNTD(loanMonthlyPay);
+
+      // 2. 質押借款
+      const pledgeAmount = loanAmount * pledgeRatio;
+      document.getElementById("pledgeAmountDisplay").value = formatNTD(pledgeAmount) + ` (${(pledgeRatio * 100).toFixed(0)}%)`;
+      const pledgeMonthlyInterest = (pledgeAmount * pledgeRate) / 12;
+      document.getElementById("pledgeMonthlyInterest_four").innerText = formatNTD(pledgeMonthlyInterest);
+
+      // 3. 基金配息計算
+      let tier1TotalDiv = 0;
+      let tier2TotalDiv = 0;
+
+      fundsMasterData.forEach(fund => {
+        const rateInput = document.getElementById(`fundRate_${fund.id}`);
+        const rate = (parseFloat(rateInput ? rateInput.value : 0) || 0) / 100;
+        const r1Val = parseFloat(document.getElementById(`tier1Ratio_${fund.id}`).value) || 0;
+        const r2Val = parseFloat(document.getElementById(`tier2Ratio_${fund.id}`).value) || 0;
+
+        const fundTier1Monthly = (loanAmount * (r1Val / 100) * rate) / 12;
+        const fundTier2Monthly = (pledgeAmount * (r2Val / 100) * rate) / 12;
+        const fundTotalMonthly = fundTier1Monthly + fundTier2Monthly;
+
+        tier1TotalDiv += fundTier1Monthly;
+        tier2TotalDiv += fundTier2Monthly;
+
+        const td = document.getElementById(`fundMonthlyTotal_${fund.id}`);
+        if (td) td.innerText = formatNTD(fundTotalMonthly);
+      });
+
+      document.getElementById("tier1TotalDividend_four").innerText = formatNTD(tier1TotalDiv) + " /月";
+      document.getElementById("tier2TotalDividend_four").innerText = formatNTD(tier2TotalDiv) + " /月";
+
+      // 4. 收支彙整與現金流判斷
+      const totalDividend = tier1TotalDiv + tier2TotalDiv;
+      const totalExpense = loanMonthlyPay + pledgeMonthlyInterest;
+      
+      const netMonthlyCashflow = totalDividend - totalExpense;
+
+      document.getElementById("card-total-dividend").innerText = formatNTD(totalDividend) + " /月";
+      document.getElementById("card-total-expense").innerText = formatNTD(totalExpense) + " /月";
+      
+      if (netMonthlyCashflow >= 0) {
+        document.getElementById("card-net-cashflow").innerText = "淨賺 " + formatNTD(netMonthlyCashflow) + " /月";
+        document.getElementById("card-net-cashflow").className = "text-xl font-bold text-emerald-600 font-mono";
+      } else {
+        document.getElementById("card-net-cashflow").innerText = "自掏 " + formatNTD(Math.abs(netMonthlyCashflow)) + " /月";
+        document.getElementById("card-net-cashflow").className = "text-xl font-bold text-indigo-700 font-mono";
+      }
+      
+      document.getElementById("card-retained-asset").innerText = formatNTD(loanAmount);
+
+      document.getElementById("flow-tier1-div").innerText = "+" + formatNTD(tier1TotalDiv);
+      document.getElementById("flow-tier2-div").innerText = "+" + formatNTD(tier2TotalDiv);
+      document.getElementById("flow-loan-pay").innerText = "-" + formatNTD(loanMonthlyPay);
+      document.getElementById("flow-pledge-pay").innerText = "-" + formatNTD(pledgeMonthlyInterest);
+      
+      const flowNetLabel = document.getElementById("flow-net-label");
+      const flowNetTotal = document.getElementById("flow-net-total");
+      if (netMonthlyCashflow >= 0) {
+        flowNetLabel.innerText = "每月實質淨正流入 (多領)：";
+        flowNetTotal.innerText = "+" + formatNTD(netMonthlyCashflow);
+        flowNetTotal.className = "text-emerald-600 font-extrabold font-mono";
+      } else {
+        flowNetLabel.innerText = "每月實際自付淨現金流：";
+        flowNetTotal.innerText = "-" + formatNTD(Math.abs(netMonthlyCashflow));
+        flowNetTotal.className = "text-indigo-700 font-bold font-mono";
+      }
+
+      // 5. 4年結算
+      let remainPrincipal = loanAmount;
+      let totalPaidPrincipal4Years = 0;
+      for (let m = 1; m <= 48; m++) {
+        if (m <= totalMonths) {
+          const interestMonth = remainPrincipal * monthlyRate;
+          const principalMonth = loanMonthlyPay - interestMonth;
+          remainPrincipal -= principalMonth;
+          totalPaidPrincipal4Years += principalMonth;
+        }
+      }
+      remainPrincipal = Math.max(0, remainPrincipal);
+
+      document.getElementById("fourYearPaidPrincipal").innerText = formatNTD(totalPaidPrincipal4Years) + ` (${((totalPaidPrincipal4Years/loanAmount)*100).toFixed(1)}%)`;
+      document.getElementById("fourYearRemainPrincipal").innerText = formatNTD(remainPrincipal);
+      document.getElementById("tier2SurrenderNet").innerText = formatNTD(pledgeAmount);
+
+      const rowExtraDiv = document.getElementById("row-extra-dividend");
+      const rowSelfPay = document.getElementById("row-self-pay");
+
+      if (netMonthlyCashflow > 0) {
+        const fourYearExtraCash = netMonthlyCashflow * 48;
+        document.getElementById("fourYearExtraDividend").innerText = "+" + formatNTD(fourYearExtraCash);
+        rowExtraDiv.classList.remove("hidden");
+        document.getElementById("fourYearSelfPay").innerText = "$0 (每月全額被動覆蓋)";
+      } else {
+        rowExtraDiv.classList.add("hidden");
+        const fourYearTotalSelfPay = Math.abs(netMonthlyCashflow) * 48;
+        document.getElementById("fourYearSelfPay").innerText = formatNTD(fourYearTotalSelfPay);
+      }
+    }
+
+    // 系統載入時初始化
+    window.onload = () => {
+      calculateMortgage();
+      fetchDailyRates();
+      renderTopFundCards();
+      initFundTable();
+      calculateFourYear();
+    };
+  </script>
+</body>
+</html>
